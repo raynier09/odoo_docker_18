@@ -1,0 +1,38 @@
+version: '1.0'
+
+services:
+  web:
+    image: odoo:18.0
+    container_name: odoo_18
+    depends_on:
+      - db
+    ports: 
+      - "8069:8069"
+    volumes:
+      - ./odoo/config:/etc/odoo
+      - ./odoo/addons:/mnt/extra-addons
+      - ./odoo/enterprise:/mnt/enterprise
+    environment:
+      - HOST=db
+      - USER=${ODOO_USER}
+      - PASSWORD=${ODOO_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - odoo_network
+
+  db:
+    image: postgres:16
+    container_name: postgres_16
+    ports: 
+      - "5438:5432"
+    environment:
+      - POSTGRES_USER=${ODOO_USER}
+      - POSTGRES_PASSWORD=${ODOO_PASSWORD}
+      - POSTGRES_DB=postgres
+    restart: unless-stopped
+    networks:
+      - odoo_network
+
+networks:
+  odoo_network:
+    driver: bridge
